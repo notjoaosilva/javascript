@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conecta Destinos</title>
+    <!-- Incluindo Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluindo Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Cor de fundo suave */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden; /* Evita rolagem horizontal */
+        }
+        .app-container {
+            width: 100%;
+            max-width: 420px; /* Largura máxima para simular um celular */
+            height: 100vh; /* Altura total da viewport */
+            background-color: #fff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Para posicionar telas */
+        }
+        .screen {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #e0f2f1; /* Cor de fundo padrão das telas do protótipo */
+            color: #333;
+            overflow-y: auto; /* Permite rolagem dentro da tela se o conteúdo for grande */
+        }
+        .screen.active {
+            display: flex;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            color: #1a4d46;
+        }
+        .header .time {
+            font-weight: bold;
+        }
+        .header .icons i {
+            margin-left: 10px;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background-color: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+            width: 100%;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+        .navbar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #4a5568;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .navbar-item.active, .navbar-item:hover {
+            color: #1a4d46;
+        }
+        .navbar-item i {
+            font-size: 1.25rem;
+            margin-bottom: 4px;
+        }
+        input, select {
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #edf2f7;
+            color: #4a5568;
+        }
+        button {
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background-color: #2e7d32; /* Um verde mais escuro para botões primários */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #246a2a;
+        }
+        .btn-secondary {
+            background-color: #a7d9c6; /* Um verde claro */
+            color: #1a4d46;
+        }
+        .btn-secondary:hover {
+            background-color: #8ccbb7;
+        }
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #2e7d32;
+            color: #2e7d32;
+        }
+        .btn-outline:hover {
+            background-color: #e0f2f1;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        .modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 350px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active justify-center items-center text-center">
+            <h1 class="text-5xl font-extrabold text-[#1a4d46] mb-4">CONECTA</h1>
+            <h2 class="text-4xl font-bold text-[#1a4d46] mb-8">DESTINOS</h2>
+            <p class="text-xl text-[#333] mb-12">Um APP web de corridas compartilhadas.</p>
+            <button class="btn-primary w-full max-w-xs py-4 text-xl" onclick="showScreen('onboarding-screen-1')">Continuar</button>
+        </div>
+
+        <!-- Onboarding Screen 1 -->
+        <div id="onboarding-screen-1" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <span class="time">9:41</span>
+                <div class="icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <img src="https://placehold.co/250x250/a7d9c6/1a4d46?text=Carro" alt="Compartilhe seu caminho" class="my-8 rounded-lg shadow-lg">
+            <h3 class="text-2xl font-bold text-[#1a4d46] mb-4">Compartilhe seu caminho com quem vai na mesma direção</h3>
+            <p class="text-lg text-[#333] mb-8">Economize no combustível, reduza o trânsito e ainda conheça novas pessoas durante seus trajetos diários.</p>
+            <div class="flex space-x-4 w-full max-w-xs mt-auto">
+                <button class="btn-secondary flex-1 py-3 text-lg" onclick="showScreen('auth-screen')">Pular</button>
+                <button class="btn-primary flex-1 py-3 text-lg" onclick="showScreen('onboarding-screen-2')">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Onboarding Screen 2 -->
+        <div id="onboarding-screen-2" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <span class="time">9:41</span>
+                <div class="icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <img src="https://placehold.co/250x250/a7d9c6/1a4d46?text=Economia" alt="Viaje de forma econômica" class="my-8 rounded-lg shadow-lg">
+            <h3 class="text-2xl font-bold text-[#1a4d46] mb-4">Viaje de forma econômica e sustentável</h3>
+            <p class="text-lg text-[#333] mb-8">Ao dividir caronas, você reduz custos e contribui com o meio ambiente, diminuindo a emissão de poluentes.</p>
+            <div class="flex space-x-4 w-full max-w-xs mt-auto">
+                <button class="btn-secondary flex-1 py-3 text-lg" onclick="showScreen('auth-screen')">Pular</button>
+                <button class="btn-primary flex-1 py-3 text-lg" onclick="showScreen('onboarding-screen-3')">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Onboarding Screen 3 -->
+        <div id="onboarding-screen-3" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <span class="time">9:41</span>
+                <div class="icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <img src="https://placehold.co/250x250/a7d9c6/1a4d46?text=Meio+Ambiente" alt="APP de caronas" class="my-8 rounded-lg shadow-lg">
+            <h3 class="text-2xl font-bold text-[#1a4d46] mb-4">APP de caronas além de ajudar com a redução de emissão de gases poluentes no meio ambiente</h3>
+            <p class="text-lg text-[#333] mb-8">Ele também contribui para diminuir problemas como altos custos de transporte e de certa forma diminuir congestionamentos.</p>
+            <div class="flex space-x-4 w-full max-w-xs mt-auto">
+                <button class="btn-secondary flex-1 py-3 text-lg" onclick="showScreen('auth-screen')">Pular</button>
+                <button class="btn-primary flex-1 py-3 text-lg" onclick="showScreen('auth-screen')">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Auth Screen (Select type) -->
+        <div id="auth-screen" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <span class="time">9:41</span>
+                <div class="icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-[#1a4d46] mb-6">Conecte Destinos<br>Seja bem vindo</h2>
+            <p class="text-xl text-[#333] mb-8">Como você quer continuar?<br>Você pode fazer login como motorista ou passageiro, selecione um para continuar.</p>
+            <button class="btn-primary w-full max-w-xs py-4 mb-4" onclick="showScreen('login-passenger-driver', {type: 'Passageiro'})">Passageiro</button>
+            <button class="btn-primary w-full max-w-xs py-4" onclick="showScreen('login-passenger-driver', {type: 'Motorista'})">Motorista</button>
+        </div>
+
+        <!-- Login/Registration Screen (Email/Phone) -->
+        <div id="login-passenger-driver" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <span class="time">9:41</span>
+                <div class="icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-[#1a4d46] mb-6">Entre<br>Com suas credenciais</h2>
+
+            <div class="flex w-full max-w-xs mb-6 rounded-xl overflow-hidden shadow">
+                <button id="tab-motorista" class="flex-1 py-3 btn-secondary rounded-none" onclick="selectLoginType('Motorista')">Motorista</button>
+                <button id="tab-passageiro" class="flex-1 py-3 btn-primary rounded-none" onclick="selectLoginType('Passageiro')">Passageiro</button>
+            </div>
+
+            <input type="email" id="login-email" placeholder="Email" class="mb-4">
+            <p id="error-email" class="error-message hidden">Email incorreto ou inválido</p>
+            <input type="tel" id="login-phone" placeholder="Número de telefone" class="mb-6">
+            <p id="error-phone" class="error-message hidden">Telefone incorreto ou inválido</p>
+
+            <button class="btn-primary w-full max-w-xs py-4" onclick="validateLoginCredentials()">Continuar</button>
+            <a href="#" class="text-[#1a4d46] text-sm mt-4 block" onclick="showScreen('auth-screen')">Voltar para o acesso</a>
+        </div>
+
+        <!-- Login Details Screen (User/Password) -->
+        <div id="login-details" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <span class="time">9:41</span>
+                <div class="icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-[#1a4d46] mb-6">Conecte Destinos<br>Seja bem vindo</h2>
+            <input type="text" id="login-username" placeholder="Usuário" class="mb-4">
+            <p id="error-username" class="error-message hidden">Usuário incorreto</p>
+            <input type="password" id="login-password" placeholder="Senha" class="mb-6">
+            <p id="error-password" class="error-message hidden">Senha incorreta</p>
+
+            <button class="btn-primary w-full max-w-xs py-4" onclick="validateUserPassword()">Continuar</button>
+            <a href="#" class="text-[#1a4d46] text-sm mt-4 block" onclick="showScreen('password-reset')">Esqueceu a senha? Reset aqui</a>
+            <a href="#" class="text-[#1a4d46] text-sm mt-2 block" onclick="showScreen('auth-screen')">Mudar tipo de acesso</a>
+        </div>
+
+        <!-- Password Reset Screen -->
+        <div id="password-reset" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <span class="time">9:41</span>
+                <div class="icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-[#1a4d46] mb-6">Digite a senha</h2>
+            <div class="flex justify-center space-x-2 mb-4">
+                <input type="password" maxlength="1" class="w-12 h-12 text-center text-2xl rounded-lg border border-gray-300" id="pass-digit-1">
+                <input type="password" maxlength="1" class="w-12 h-12 text-center text-2xl rounded-lg border border-gray-300" id="pass-digit-2">
+                <input type="password" maxlength="1" class="w-12 h-12 text-center text-2xl rounded-lg border border-gray-300" id="pass-digit-3">
+                <input type="password" maxlength="1" class="w-12 h-12 text-center text-2xl rounded-lg border border-gray-300" id="pass-digit-4">
+            </div>
+            <p id="error-password-reset" class="error-message hidden">Senha inválida. Máximo de 2 números iguais.</p>
+            <p class="text-sm text-gray-600 mb-8">• Máximo de 2 números iguais.</p>
+            <button class="btn-primary w-full max-w-xs py-4" onclick="validatePasswordReset()">Continuar</button>
+            <a href="#" class="text-[#1a4d46] text-sm mt-4 block">Editar informações</a>
+        </div>
+
+        <!-- Password Success Screen -->
+        <div id="password-success" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <span class="time">9:41</span>
+                <div class="icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            <img src="https://placehold.co/100x100/d4edda/1a4d46?text=✓" alt="Sucesso" class="my-8 mx-auto rounded-full">
+            <h2 class="text-3xl font-bold text-[#1a4d46] mb-6">Sucesso com a sua troca de senha</h2>
+            <button class="btn-primary w-full max-w-xs py-4" onclick="showScreen('login-details')">Redirecionar para a tela de acesso</button>
+        </div>
+
+        <!-- Home Screen (Map & Search) -->
+        <div id="home-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-bars text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <span class="time">9:41</span>
+                <i class="fas fa-bell text-xl text-[#1a4d46]"></i>
+            </div>
+            <div class="flex-grow flex justify-center items-center bg-gray-200 rounded-xl my-4 overflow-hidden">
+                <img src="https://placehold.co/300x300/e0f2f1/1a4d46?text=Mapa" alt="Mapa de localização" class="w-full h-full object-cover">
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-lg">
+                <input type="text" placeholder="Para onde você irá?" class="mb-4" onclick="showScreen('location-selection-screen')">
+                <div class="flex w-full rounded-xl overflow-hidden shadow">
+                    <button id="home-tab-carona" class="flex-1 py-3 btn-secondary rounded-none" onclick="selectHomeTab('Carona')">Carona</button>
+                    <button id="home-tab-destino" class="flex-1 py-3 btn-primary rounded-none" onclick="selectHomeTab('Destino')">Destino</button>
+                </div>
+            </div>
+            <div class="navbar mt-auto">
+                <div class="navbar-item active" onclick="showScreen('home-screen')">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('frequent-locations-screen')">
+                    <i class="fas fa-star"></i>
+                    <span>Favoritos</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('wallet-screen')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Carteira</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('offers-screen')">
+                    <i class="fas fa-tags"></i>
+                    <span>Ofertas</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Selection Screen -->
+        <div id="location-selection-screen" class="screen">
+            <div class="header w-full justify-end">
+                <i class="fas fa-times text-xl text-gray-600" onclick="hideScreen('location-selection-screen')"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-[#1a4d46] mb-6 text-center">Selecione o endereço</h2>
+            <input type="text" placeholder="Conecte" class="mb-4">
+            <input type="text" placeholder="Destino" class="mb-6">
+
+            <h3 class="text-xl font-bold text-[#1a4d46] mb-4">Recentes</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt text-gray-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold">Trabalho</p>
+                            <p class="text-sm text-gray-500">Endereço de exemplo</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">2.7km</span>
+                </div>
+                <div class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt text-gray-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold">Minas Shopping</p>
+                            <p class="text-sm text-gray-500">Endereço de exemplo</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">1.1km</span>
+                </div>
+                <div class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt text-gray-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold">Shopping estação</p>
+                            <p class="text-sm text-gray-500">Endereço de exemplo</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">4.9km</span>
+                </div>
+                <div class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt text-gray-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold">Zoológico</p>
+                            <p class="text-sm text-gray-500">Endereço de exemplo</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">4.0km</span>
+                </div>
+            </div>
+            <button class="btn-primary w-full max-w-xs py-4 mt-8" onclick="showScreen('vehicle-selection-screen')">Confirmar</button>
+        </div>
+
+        <!-- Vehicle Selection Screen -->
+        <div id="vehicle-selection-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('location-selection-screen')"></i>
+                <span class="time">9:41</span>
+                <i class="fas fa-bell text-xl text-[#1a4d46]"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-[#1a4d46] mb-6 text-center">Selecione o seu veículo</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="btn-secondary py-6 flex flex-col items-center justify-center" onclick="showScreen('ride-details-screen')">
+                    <span class="text-5xl">🚗</span>
+                    <span class="mt-2 text-lg">Carro</span>
+                </button>
+                <button class="btn-secondary py-6 flex flex-col items-center justify-center" onclick="showScreen('ride-details-screen')">
+                    <span class="text-5xl">🏍️</span>
+                    <span class="mt-2 text-lg">Moto</span>
+                </button>
+                <button class="btn-secondary py-6 flex flex-col items-center justify-center" onclick="showScreen('ride-details-screen')">
+                    <span class="text-5xl">🚲</span>
+                    <span class="mt-2 text-lg">Bicicleta</span>
+                </button>
+                <button class="btn-secondary py-6 flex flex-col items-center justify-center" onclick="showScreen('ride-details-screen')">
+                    <span class="text-5xl">🚕</span>
+                    <span class="mt-2 text-lg">Táxi</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Ride Details / Vehicle Specs Screen -->
+        <div id="ride-details-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('vehicle-selection-screen')"></i>
+                <span class="time">9:41</span>
+                <i class="fas fa-bell text-xl text-[#1a4d46]"></i>
+            </div>
+            <img src="https://placehold.co/300x150/a7d9c6/1a4d46?text=Carro+Detalhes" alt="Detalhes do veículo" class="w-full rounded-lg shadow-lg mb-6">
+            <h2 class="text-xl font-bold text-[#1a4d46] mb-4">Onix Plus</h2>
+            <p class="text-sm text-gray-600 mb-6">4.9 (53 avaliações)</p>
+
+            <h3 class="text-lg font-bold text-[#1a4d46] mb-3">Especificações</h3>
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-white p-3 rounded-lg text-center shadow-sm">
+                    <i class="fas fa-user-friends text-xl text-[#1a4d46] mb-1"></i>
+                    <p class="text-xs">Max. passageiros</p>
+                    <p class="font-bold">4</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg text-center shadow-sm">
+                    <i class="fas fa-gas-pump text-xl text-[#1a4d46] mb-1"></i>
+                    <p class="text-xs">Combustível</p>
+                    <p class="font-bold">Flex</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg text-center shadow-sm">
+                    <i class="fas fa-tachometer-alt text-xl text-[#1a4d46] mb-1"></i>
+                    <p class="text-xs">Max. corrida</p>
+                    <p class="font-bold">100km</p>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-[#1a4d46] mb-3">Recursos do carro</h3>
+            <div class="space-y-3 mb-8">
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm">
+                    <p class="font-semibold w-1/3">Modelo</p>
+                    <p class="flex-1 text-right">LTZ Turbo</p>
+                </div>
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm">
+                    <p class="font-semibold w-1/3">Cor</p>
+                    <p class="flex-1 text-right">Vermelho</p>
+                </div>
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm">
+                    <p class="font-semibold w-1/3">Tipo</p>
+                    <p class="flex-1 text-right">Automático</p>
+                </div>
+            </div>
+            <button class="btn-primary w-full max-w-xs py-4" onclick="showScreen('ride-confirmation-screen')">Cadastrar</button>
+        </div>
+
+        <!-- Ride Confirmation Screen -->
+        <div id="ride-confirmation-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('home-screen')"></i>
+                <span class="time">9:41</span>
+                <i class="fas fa-bell text-xl text-[#1a4d46]"></i>
+            </div>
+            <div class="flex-grow flex justify-center items-center bg-gray-200 rounded-xl my-4 overflow-hidden">
+                <img src="https://placehold.co/300x300/e0f2f1/1a4d46?text=Mapa+Confirmação" alt="Mapa de confirmação de rota" class="w-full h-full object-cover">
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-lg mb-4">
+                <div class="flex items-center mb-4">
+                    <img src="https://placehold.co/60x60/a7d9c6/1a4d46?text=JG" alt="Foto de perfil de Pedro Gabriel" class="w-16 h-16 rounded-full mr-4">
+                    <div>
+                        <p class="font-bold text-lg">Pedro Gabriel</p>
+                        <p class="text-sm text-gray-600">📍 Endereço de exemplo</p>
+                        <p class="text-sm text-gray-600">🚗 Carro de exemplo</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <p class="font-semibold text-lg">Valor da carona</p>
+                    <p class="font-bold text-2xl text-[#1a4d46]">R$30,00</p>
+                </div>
+                <h3 class="font-semibold text-lg mb-3">Forma de pagamento</h3>
+                <div class="flex items-center bg-gray-100 p-3 rounded-lg mb-6">
+                    <i class="fab fa-cc-visa text-2xl text-blue-800 mr-3"></i>
+                    <p class="font-semibold">Cartão de crédito</p>
+                </div>
+                <button class="btn-primary w-full py-4 text-lg" onclick="showModal('payment-received-modal')">Aceitar passageiro</button>
+            </div>
+            <div class="navbar mt-auto">
+                <div class="navbar-item" onclick="showScreen('home-screen')">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('frequent-locations-screen')">
+                    <i class="fas fa-star"></i>
+                    <span>Favoritos</span>
+                </div>
+                <div class="navbar-item active" onclick="showScreen('wallet-screen')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Carteira</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('offers-screen')">
+                    <i class="fas fa-tags"></i>
+                    <span>Ofertas</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Received Modal -->
+        <div id="payment-received-modal" class="modal">
+            <div class="modal-content">
+                <i class="fas fa-times text-gray-500 float-right cursor-pointer" onclick="hideModal('payment-received-modal')"></i>
+                <img src="https://placehold.co/100x100/d4edda/1a4d46?text=✓" alt="Pagamento Recebido" class="my-4 mx-auto rounded-full">
+                <h2 class="text-xl font-bold text-[#1a4d46] mb-2">Pagamento recebido</h2>
+                <p class="text-sm text-gray-600 mb-4">Seu pagamento recebido com sucesso pelo Pedro Gabriel</p>
+                <p class="text-xs text-gray-500">VALOR</p>
+                <p class="text-3xl font-bold text-[#1a4d46] mb-6">R$30,00</p>
+                <p class="text-sm text-gray-600 mb-4">Como foi sua viagem? Seu feedback nos ajudará a melhorar sua próxima carona.</p>
+                <button class="btn-primary w-full py-3 mb-3" onclick="showScreen('rating-screen'); hideModal('payment-received-modal');">Avaliar</button>
+                <button class="btn-secondary w-full py-3" onclick="showScreen('home-screen'); hideModal('payment-received-modal');">Carona finalizada</button>
+            </div>
+        </div>
+
+        <!-- In-Ride Screen -->
+        <div id="in-ride-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-bars text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <span class="time">9:41</span>
+                <i class="fas fa-bell text-xl text-[#1a4d46]"></i>
+            </div>
+            <div class="flex-grow flex justify-center items-center bg-gray-200 rounded-xl my-4 overflow-hidden relative">
+                <img src="https://placehold.co/300x300/e0f2f1/1a4d46?text=Rota+Atual" alt="Rota da viagem" class="w-full h-full object-cover">
+                <div class="absolute top-4 right-4 bg-white p-2 rounded-lg shadow-md">
+                    <p class="text-sm font-semibold text-[#1a4d46]">João chegará em 5 minutos</p>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-lg">
+                <div class="flex items-center mb-4">
+                    <img src="https://placehold.co/60x60/a7d9c6/1a4d46?text=JV" alt="Foto de perfil de João" class="w-16 h-16 rounded-full mr-4">
+                    <div>
+                        <p class="font-bold text-lg">João</p>
+                        <p class="text-sm text-gray-600">Passageiro</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <p class="font-semibold text-lg">Método de pagamento</p>
+                    <p class="font-bold text-2xl text-[#1a4d46]">R$30,00</p>
+                </div>
+                <div class="flex items-center bg-gray-100 p-3 rounded-lg mb-6">
+                    <i class="fab fa-cc-visa text-2xl text-blue-800 mr-3"></i>
+                    <p class="font-semibold">VISA **** **** **** 8970</p>
+                    <p class="text-sm text-gray-500 ml-auto">Validade: 12/26</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button class="btn-outline flex-1 py-3 text-lg" onclick="showScreen('call-screen')">Ligar</button>
+                    <button class="btn-primary flex-1 py-3 text-lg" onclick="showScreen('chat-screen')">Mensagem</button>
+                </div>
+            </div>
+            <div class="navbar mt-auto">
+                <div class="navbar-item" onclick="showScreen('home-screen')">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('frequent-locations-screen')">
+                    <i class="fas fa-star"></i>
+                    <span>Favoritos</span>
+                </div>
+                <div class="navbar-item active" onclick="showScreen('wallet-screen')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Carteira</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('offers-screen')">
+                    <i class="fas fa-tags"></i>
+                    <span>Ofertas</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call Screen -->
+        <div id="call-screen" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('in-ride-screen')"></i>
+                <span class="time">9:41</span>
+                <i class="fas fa-bell text-xl text-[#1a4d46]"></i>
+            </div>
+            <img src="https://placehold.co/100x100/a7d9c6/1a4d46?text=PG" alt="Foto de perfil de Pedro Gabriel" class="w-32 h-32 rounded-full mb-6 mx-auto">
+            <h2 class="text-3xl font-bold text-[#1a4d46] mb-2">Pedro Gabriel</h2>
+            <p class="text-lg text-gray-600 mb-12">Ligando...</p>
+            <div class="flex justify-center space-x-8 mt-auto">
+                <i class="fas fa-microphone-slash text-3xl text-gray-600 p-4 bg-gray-200 rounded-full cursor-pointer"></i>
+                <i class="fas fa-phone-slash text-3xl text-white bg-red-500 p-4 rounded-full cursor-pointer" onclick="showScreen('in-ride-screen')"></i>
+                <i class="fas fa-volume-up text-3xl text-gray-600 p-4 bg-gray-200 rounded-full cursor-pointer"></i>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chat-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('in-ride-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Chat</h2>
+                <span class="time invisible">9:41</span> <!-- Para alinhar -->
+            </div>
+            <div class="flex-grow overflow-y-auto p-4 space-y-4">
+                <!-- Example messages -->
+                <div class="flex items-start">
+                    <img src="https://placehold.co/40x40/a7d9c6/1a4d46?text=PG" alt="Pedro Gabriel" class="w-10 h-10 rounded-full mr-3">
+                    <div class="bg-gray-200 p-3 rounded-lg max-w-[70%]">
+                        <p>Bom dia</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <img src="https://placehold.co/40x40/a7d9c6/1a4d46?text=PG" alt="Pedro Gabriel" class="w-10 h-10 rounded-full mr-3">
+                    <div class="bg-gray-200 p-3 rounded-lg max-w-[70%]">
+                        <p>Bem vindo ao Conecte Destinos</p>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <div class="bg-[#a7d9c6] p-3 rounded-lg max-w-[70%]">
+                        <p>Bom dia, muito obrigado!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center p-4 bg-white border-t border-gray-200">
+                <i class="fas fa-phone text-xl text-[#1a4d46] mr-3 cursor-pointer" onclick="showScreen('call-screen')"></i>
+                <input type="text" placeholder="Escreva..." class="flex-grow mr-3 py-2 px-4 rounded-full bg-gray-100 border border-gray-300">
+                <i class="fas fa-paperclip text-xl text-gray-500 mr-3 cursor-pointer"></i>
+                <i class="fas fa-paper-plane text-xl text-[#1a4d46] cursor-pointer"></i>
+            </div>
+        </div>
+
+        <!-- Rating Screen -->
+        <div id="rating-screen" class="screen justify-center items-center text-center">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('payment-screen')"></i>
+                <span class="time">9:41</span>
+                <i class="fas fa-bell text-xl text-[#1a4d46]"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-[#1a4d46] mb-6">Avalie seu passageiro</h2>
+            <div class="flex justify-center text-yellow-400 text-4xl mb-6">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="far fa-star"></i>
+            </div>
+            <p class="text-xl font-semibold text-[#1a4d46] mb-6">Excelente</p>
+            <textarea class="w-full max-w-xs h-24 p-3 rounded-lg border border-gray-300 mb-6 bg-gray-100" placeholder="Deixe um comentário..."></textarea>
+            <h3 class="text-lg font-bold text-[#1a4d46] mb-4">Adicione um valor extra à João</h3>
+            <div class="flex justify-center space-x-3 mb-8">
+                <button class="btn-outline px-6 py-2 rounded-lg">$1</button>
+                <button class="btn-primary px-6 py-2 rounded-lg">$2</button>
+                <button class="btn-outline px-6 py-2 rounded-lg">$5</button>
+                <button class="btn-outline px-6 py-2 rounded-lg">$10</button>
+                <button class="btn-outline px-6 py-2 rounded-lg">$20</button>
+            </div>
+            <button class="btn-primary w-full max-w-xs py-4" onclick="showScreen('home-screen')">Enviar</button>
+        </div>
+
+        <!-- Frequent Locations Screen -->
+        <div id="frequent-locations-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-bars text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Favoritos</h2>
+                <span class="time invisible">9:41</span>
+            </div>
+            <p class="text-md text-gray-600 mb-6 text-center">Deixe os lugares mais visitados por você salvos, assim não será necessário adicionar toda vez que for fazer uma corrida.</p>
+            <div class="space-y-4">
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm">
+                    <i class="fas fa-map-marker-alt text-gray-500 mr-3"></i>
+                    <div>
+                        <p class="font-semibold">Exemplo</p>
+                        <p class="text-sm text-gray-500">Endereço de exemplo</p>
+                    </div>
+                </div>
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm">
+                    <i class="fas fa-map-marker-alt text-gray-500 mr-3"></i>
+                    <div>
+                        <p class="font-semibold">Exemplo</p>
+                        <p class="text-sm text-gray-500">Endereço de exemplo</p>
+                    </div>
+                </div>
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm">
+                    <i class="fas fa-map-marker-alt text-gray-500 mr-3"></i>
+                    <div>
+                        <p class="font-semibold">Exemplo</p>
+                        <p class="text-sm text-gray-500">Endereço de exemplo</p>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar mt-auto">
+                <div class="navbar-item" onclick="showScreen('home-screen')">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </div>
+                <div class="navbar-item active" onclick="showScreen('frequent-locations-screen')">
+                    <i class="fas fa-star"></i>
+                    <span>Favoritos</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('wallet-screen')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Carteira</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('offers-screen')">
+                    <i class="fas fa-tags"></i>
+                    <span>Ofertas</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet Screen -->
+        <div id="wallet-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-bars text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Carteira</h2>
+                <span class="time invisible">9:41</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-lg mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="font-semibold">Adicionar dinheiro</p>
+                    <button class="btn-secondary px-4 py-2 text-sm rounded-lg" onclick="showModal('add-money-modal')">Adicionar</button>
+                </div>
+                <div class="flex justify-around mb-4">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">Saldo disponível</p>
+                        <p class="font-bold text-xl text-[#1a4d46]">R$500,00</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">Total utilizado</p>
+                        <p class="font-bold text-xl text-red-500">R$200,00</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-[#1a4d46] mb-4">Pagamentos</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <div>
+                        <p class="font-semibold">João</p>
+                        <p class="text-sm text-gray-500">Exemplo às 09:20 am</p>
+                    </div>
+                    <span class="text-red-500 font-bold">-R$30,00</span>
+                </div>
+                <div class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+                    <div>
+                        <p class="font-semibold">Pedro Gabriel</p>
+                        <p class="text-sm text-gray-500">Exemplo às 09:20 am</p>
+                    </div>
+                    <span class="text-[#1a4d46] font-bold">R$30,00</span>
+                </div>
+            </div>
+            <div class="navbar mt-auto">
+                <div class="navbar-item" onclick="showScreen('home-screen')">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('frequent-locations-screen')">
+                    <i class="fas fa-star"></i>
+                    <span>Favoritos</span>
+                </div>
+                <div class="navbar-item active" onclick="showScreen('wallet-screen')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Carteira</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('offers-screen')">
+                    <i class="fas fa-tags"></i>
+                    <span>Ofertas</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Money Modal -->
+        <div id="add-money-modal" class="modal">
+            <div class="modal-content">
+                <i class="fas fa-times text-gray-500 float-right cursor-pointer" onclick="hideModal('add-money-modal')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] mb-4">Adicionar Dinheiro</h2>
+                <input type="number" placeholder="Valor" class="mb-4">
+                <button class="btn-primary w-full py-3" onclick="showModal('payment-method-modal')">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Payment Method Modal -->
+        <div id="payment-method-modal" class="modal">
+            <div class="modal-content">
+                <i class="fas fa-times text-gray-500 float-right cursor-pointer" onclick="hideModal('payment-method-modal')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] mb-4">Métodos</h2>
+                <p class="text-sm text-gray-600 mb-4">Selecione o meio de pagamento</p>
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center bg-gray-100 p-3 rounded-lg cursor-pointer">
+                        <i class="fab fa-cc-visa text-2xl text-blue-800 mr-3"></i>
+                        <p class="font-semibold">**** **** **** 8970</p>
+                    </div>
+                    <div class="flex items-center bg-gray-100 p-3 rounded-lg cursor-pointer">
+                        <i class="fas fa-envelope text-2xl text-gray-700 mr-3"></i>
+                        <p class="font-semibold">meuemail@mail.com</p>
+                    </div>
+                    <div class="flex items-center bg-gray-100 p-3 rounded-lg cursor-pointer">
+                        <i class="fas fa-money-bill-wave text-2xl text-green-700 mr-3"></i>
+                        <p class="font-semibold">Cash</p>
+                    </div>
+                </div>
+                <button class="btn-primary w-full py-3" onclick="showModal('payment-add-success-modal')">Confirmar</button>
+            </div>
+        </div>
+
+        <!-- Payment Add Success Modal -->
+        <div id="payment-add-success-modal" class="modal">
+            <div class="modal-content">
+                <img src="https://placehold.co/100x100/d4edda/1a4d46?text=✓" alt="Sucesso" class="my-4 mx-auto rounded-full">
+                <h2 class="text-xl font-bold text-[#1a4d46] mb-2">Adicionado com sucesso</h2>
+                <p class="text-sm text-gray-600 mb-6">Seu método de pagamento foi adicionado com sucesso.</p>
+                <button class="btn-primary w-full py-3" onclick="hideModal('payment-add-success-modal'); showScreen('wallet-screen');">Voltar ao início</button>
+            </div>
+        </div>
+
+
+        <!-- Offers Screen -->
+        <div id="offers-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-bars text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Ofertas</h2>
+                <span class="time invisible">9:41</span>
+            </div>
+            <p class="text-md text-gray-600 mb-6 text-center">Cupons de descontos disponíveis no app</p>
+            <div class="space-y-4">
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm justify-between">
+                    <div>
+                        <p class="font-semibold">15% off</p>
+                        <p class="text-sm text-gray-500">libee</p>
+                    </div>
+                    <button class="btn-primary text-sm px-4 py-2">Coletar</button>
+                </div>
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm justify-between">
+                    <div>
+                        <p class="font-semibold">5% off</p>
+                        <p class="text-sm text-gray-500">Mecânica X</p>
+                    </div>
+                    <button class="btn-primary text-sm px-4 py-2">Coletar</button>
+                </div>
+                <div class="flex items-center bg-white p-3 rounded-lg shadow-sm justify-between">
+                    <div>
+                        <p class="font-semibold">15% off</p>
+                        <p class="text-sm text-gray-500">Restaurante Y</p>
+                    </div>
+                    <button class="btn-primary text-sm px-4 py-2">Coletar</button>
+                </div>
+            </div>
+            <div class="navbar mt-auto">
+                <div class="navbar-item" onclick="showScreen('home-screen')">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('frequent-locations-screen')">
+                    <i class="fas fa-star"></i>
+                    <span>Favoritos</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('wallet-screen')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Carteira</span>
+                </div>
+                <div class="navbar-item active" onclick="showScreen('offers-screen')">
+                    <i class="fas fa-tags"></i>
+                    <span>Ofertas</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profile-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('home-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Perfil</h2>
+                <span class="time invisible">9:41</span>
+            </div>
+            <div class="flex flex-col items-center mb-6">
+                <img src="https://placehold.co/100x100/a7d9c6/1a4d46?text=EU" alt="Foto de perfil" class="w-24 h-24 rounded-full mb-4 shadow-md">
+                <p class="text-xl font-bold text-[#1a4d46]">Nome de Exemplo</p>
+                <p class="text-md text-gray-600">exemplo@email.com</p>
+            </div>
+            <div class="space-y-4 mb-6">
+                <input type="text" placeholder="Nome de exemplo" value="Nome de exemplo">
+                <input type="email" placeholder="exemplo@email.com" value="exemplo@email.com">
+                <input type="text" placeholder="Sexo">
+                <input type="text" placeholder="Endereço">
+                <input type="tel" placeholder="+55 (XX) XXXXX-XXXX">
+            </div>
+            <button class="btn-primary w-full py-3 mb-6">Sair</button>
+
+            <div class="space-y-3 mb-6">
+                <a href="#" class="block text-[#1a4d46] text-lg hover:underline" onclick="showScreen('history-screen')"><i class="fas fa-history mr-3"></i>Histórico</a>
+                <a href="#" class="block text-[#1a4d46] text-lg hover:underline"><i class="fas fa-flag mr-3"></i>Denuncie</a>
+                <a href="#" class="block text-[#1a4d46] text-lg hover:underline"><i class="fas fa-share-alt mr-3"></i>Compartilhe</a>
+                <a href="#" class="block text-[#1a4d46] text-lg hover:underline" onclick="showScreen('about-us-screen')"><i class="fas fa-info-circle mr-3"></i>Sobre nós</a>
+                <a href="#" class="block text-[#1a4d46] text-lg hover:underline" onclick="showScreen('settings-screen')"><i class="fas fa-cog mr-3"></i>Configurações</a>
+                <a href="#" class="block text-[#1a4d46] text-lg hover:underline" onclick="showScreen('help-support-screen')"><i class="fas fa-question-circle mr-3"></i>Ajuda e Suporte</a>
+            </div>
+            <div class="navbar mt-auto">
+                <div class="navbar-item" onclick="showScreen('home-screen')">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('frequent-locations-screen')">
+                    <i class="fas fa-star"></i>
+                    <span>Favoritos</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('wallet-screen')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Carteira</span>
+                </div>
+                <div class="navbar-item" onclick="showScreen('offers-screen')">
+                    <i class="fas fa-tags"></i>
+                    <span>Ofertas</span>
+                </div>
+                <div class="navbar-item active" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Us Screen -->
+        <div id="about-us-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Sobre Nós</h2>
+                <span class="time invisible">9:41</span>
+            </div>
+            <p class="text-md text-gray-700 leading-relaxed">
+                Estamos fazendo um trabalho para a faculdade. <br><br>
+                Agora será apenas letras desconexas. Idnhfhbhjoisfdjoshgfvgdhgoivhdofg irhfiushfisghfisyifhysodgłosdhgodhrg ahdishfisugf8itgfi8tgrefgiftiehg9 juhygtfiuegridgighdohgodhgodoghodgjpod jhigehytgehdgiohdoihgodbojdogjpjdgp gjiadhgihdoirghdopgh0podjgpju shtfiudhgiudurygoadjug pok.
+            </p>
+        </div>
+
+        <!-- Help and Support Screen -->
+        <div id="help-support-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Ajuda e Suporte</h2>
+                <span class="time invisible">9:41</span>
+            </div>
+            <p class="text-md text-gray-700 leading-relaxed">
+                Lorem ipsum dolor sit amet consectetur. Sit pulvinar mauris mauris eu nibh semper nisl pretium laoreet. Sed non faucibus ac lectus eu arcu. Nulla sit congue facilisis vestibulum egestas nisl feugiat pharetra. Odio sit tortor morbi at orci ipsum dapibus interdum. Lorem felis est aliquet arcu nullam pellentesque. Et habitasse ac arcu et nunc euismod rhoncus facilisis sollicitudin.
+            </p>
+        </div>
+
+        <!-- History Screen (Placeholder) -->
+        <div id="history-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Histórico</h2>
+                <span class="time invisible">9:41</span>
+            </div>
+            <div class="text-center text-gray-600 mt-8">
+                <p>Nenhuma viagem no histórico ainda.</p>
+            </div>
+        </div>
+
+        <!-- Settings Screen (Placeholder) -->
+        <div id="settings-screen" class="screen">
+            <div class="header w-full">
+                <i class="fas fa-arrow-left text-xl text-[#1a4d46]" onclick="showScreen('profile-screen')"></i>
+                <h2 class="text-xl font-bold text-[#1a4d46] flex-grow text-center">Configurações</h2>
+                <span class="time invisible">9:41</span>
+            </div>
+            <div class="text-center text-gray-600 mt-8">
+                <p>Opções de configuração em breve.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Função para mostrar uma tela específica e ocultar as outras
+        function showScreen(screenId, options = {}) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+
+            // Lógica específica para algumas telas
+            if (screenId === 'login-passenger-driver') {
+                if (options.type) {
+                    selectLoginType(options.type);
+                } else {
+                    // Default to Passageiro if no type is specified
+                    selectLoginType('Passageiro');
+                }
+            } else if (screenId === 'home-screen') {
+                 // Default to Carona if no type is specified
+                selectHomeTab('Carona');
+            }
+
+            // Oculta a barra de navegação se a tela não for a home-screen ou outras telas de "app principal"
+            const navbar = document.querySelector('.navbar');
+            if (['home-screen', 'frequent-locations-screen', 'wallet-screen', 'offers-screen', 'profile-screen', 'ride-confirmation-screen', 'in-ride-screen'].includes(screenId)) {
+                navbar.style.display = 'flex';
+            } else {
+                navbar.style.display = 'none';
+            }
+        }
+
+        // Função para ocultar uma tela (usado principalmente para modais ou elementos que "saem" da tela)
+        function hideScreen(screenId) {
+            document.getElementById(screenId).classList.remove('active');
+        }
+
+        // Função para exibir um modal
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        // Função para ocultar um modal
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Validação de login/registro (Email/Telefone)
+        function validateLoginCredentials() {
+            const emailInput = document.getElementById('login-email');
+            const phoneInput = document.getElementById('login-phone');
+            const errorEmail = document.getElementById('error-email');
+            const errorPhone = document.getElementById('error-phone');
+
+            let isValid = true;
+
+            // Simple email validation
+            if (!emailInput.value.includes('@') || emailInput.value.length < 5) {
+                errorEmail.classList.remove('hidden');
+                isValid = false;
+            } else {
+                errorEmail.classList.add('hidden');
+            }
+
+            // Simple phone validation (just check if it's not empty for now)
+            if (phoneInput.value.length < 8) {
+                errorPhone.classList.remove('hidden');
+                isValid = false;
+            } else {
+                errorPhone.classList.add('hidden');
+            }
+
+            if (isValid) {
+                showScreen('login-details');
+            }
+        }
+
+        // Validação de login (Usuário/Senha)
+        function validateUserPassword() {
+            const usernameInput = document.getElementById('login-username');
+            const passwordInput = document.getElementById('login-password');
+            const errorUsername = document.getElementById('error-username');
+            const errorPassword = document.getElementById('error-password');
+
+            let isValid = true;
+
+            if (usernameInput.value.trim() === '') {
+                errorUsername.classList.remove('hidden');
+                isValid = false;
+            } else {
+                errorUsername.classList.add('hidden');
+            }
+
+            if (passwordInput.value.length < 6) { // Minimum password length
+                errorPassword.classList.remove('hidden');
+                isValid = false;
+            } else {
+                errorPassword.classList.add('hidden');
+            }
+
+            if (isValid) {
+                showScreen('home-screen'); // Navigate to home if valid
+            }
+        }
+
+        // Validação de redefinição de senha
+        function validatePasswordReset() {
+            const digit1 = document.getElementById('pass-digit-1').value;
+            const digit2 = document.getElementById('pass-digit-2').value;
+            const digit3 = document.getElementById('pass-digit-3').value;
+            const digit4 = document.getElementById('pass-digit-4').value;
+            const password = digit1 + digit2 + digit3 + digit4;
+            const errorReset = document.getElementById('error-password-reset');
+
+            let charCount = {};
+            let maxRepeated = 0;
+            for (let i = 0; i < password.length; i++) {
+                let char = password[i];
+                charCount[char] = (charCount[char] || 0) + 1;
+                if (charCount[char] > maxRepeated) {
+                    maxRepeated = charCount[char];
+                }
+            }
+
+            if (password.length === 4 && maxRepeated <= 2) {
+                errorReset.classList.add('hidden');
+                showScreen('password-success');
+            } else {
+                errorReset.classList.remove('hidden');
+            }
+        }
+
+        // Lógica para alternar entre Motorista e Passageiro nas telas de login
+        function selectLoginType(type) {
+            const tabMotorista = document.getElementById('tab-motorista');
+            const tabPassageiro = document.getElementById('tab-passageiro');
+
+            if (type === 'Motorista') {
+                tabMotorista.classList.remove('btn-secondary');
+                tabMotorista.classList.add('btn-primary');
+                tabPassageiro.classList.remove('btn-primary');
+                tabPassageiro.classList.add('btn-secondary');
+            } else { // Passageiro
+                tabPassageiro.classList.remove('btn-secondary');
+                tabPassageiro.classList.add('btn-primary');
+                tabMotorista.classList.remove('btn-primary');
+                tabMotorista.classList.add('btn-secondary');
+            }
+        }
+
+         // Lógica para alternar entre Carona e Destino na tela Home
+        function selectHomeTab(type) {
+            const tabCarona = document.getElementById('home-tab-carona');
+            const tabDestino = document.getElementById('home-tab-destino');
+
+            if (type === 'Carona') {
+                tabCarona.classList.remove('btn-secondary');
+                tabCarona.classList.add('btn-primary');
+                tabDestino.classList.remove('btn-primary');
+                tabDestino.classList.add('btn-secondary');
+            } else { // Destino
+                tabDestino.classList.remove('btn-secondary');
+                tabDestino.classList.add('btn-primary');
+                tabCarona.classList.remove('btn-primary');
+                tabCarona.classList.add('btn-secondary');
+            }
+        }
+
+        // Inicializa a tela de boas-vindas ao carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            showScreen('welcome-screen');
+        });
+    </script>
+</body>
+</html>
